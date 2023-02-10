@@ -1,3 +1,6 @@
+#This bot manages event check-ins over the Discord platform, currently being used for scrimmage/match scheduling by Carleton's JV White Valorant Team to plan and
+#Notify players of upcoming dates/times.
+
 import discord
 import sqlite3
 from discord.ext import commands
