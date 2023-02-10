@@ -148,4 +148,4 @@ async def remove_old_events_task():
 # Start the background task
 bot.loop.create_task(remove_old_events_task())
 # Start the bot
-bot.run('MTA3MzY2NTIyNTU1NzAyOTAyNg.GxTYpI.rD6NpvFIlJE0ID76w6zfQGVqJ3ySRTPwPfrYcc')
+bot.run('YOUR_DISCORD_BOT_TOKEN')
