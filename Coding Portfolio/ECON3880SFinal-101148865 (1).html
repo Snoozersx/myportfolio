@@ -1,0 +1,292 @@
+﻿<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"><html><head></head><body>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<div class="container-fluid main-container">
+
+
+
+
+<div>
+
+
+
+<h1 class="title toc-ignore">ECON3880SFinal-101148865</h1>
+<h4 class="author">Jared Gates</h4>
+<h4 class="date">2023-06-25</h4>
+
+</div>
+
+
+<pre class="r"><code>#Q1
+library(dplyr)</code></pre>
+<pre><code>## 
+## Attaching package: &#39;dplyr&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:stats&#39;:
+## 
+##     filter, lag</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     intersect, setdiff, setequal, union</code></pre>
+<pre class="r"><code>library(ggplot2)
+library(lmtest)</code></pre>
+<pre><code>## Loading required package: zoo</code></pre>
+<pre><code>## 
+## Attaching package: &#39;zoo&#39;</code></pre>
+<pre><code>## The following objects are masked from &#39;package:base&#39;:
+## 
+##     as.Date, as.Date.numeric</code></pre>
+<pre class="r"><code>library(maps)
+library(nycflights13)
+library(titanic)
+
+
+
+df &lt;- txhousing
+#a)
+dim(df)</code></pre>
+<pre><code>## [1] 8602    9</code></pre>
+<pre class="r"><code>#b)
+tail(df, 3)</code></pre>
+<div>
+
+</div>
+<pre class="r"><code>#c)
+df$Value &lt;- df$sales * df$median
+
+#d)
+num_cities &lt;- length(unique(df$city))
+num_cities</code></pre>
+<pre><code>## [1] 46</code></pre>
+<pre class="r"><code>#e)
+houses_dallas_2015 &lt;- subset(df, city == &quot;Dallas&quot; &amp; year == 2015)
+num_houses_dallas_2015 &lt;- nrow(houses_dallas_2015)
+num_houses_dallas_2015</code></pre>
+<pre><code>## [1] 7</code></pre>
+<pre class="r"><code>#f)
+num_missing_sales &lt;- sum(is.na(df$sales))
+num_missing_sales</code></pre>
+<pre><code>## [1] 568</code></pre>
+<pre class="r"><code>#g)
+average_listings_2010 &lt;- df %&gt;%
+  filter(year == 2010) %&gt;%
+  group_by(city) %&gt;%
+  summarize(average_listings = mean(listings))
+
+average_listings_2010</code></pre>
+<div>
+
+</div>
+<pre class="r"><code>#Q2
+
+sales_by_year &lt;- df %&gt;%
+  filter(!is.na(volume) &amp; !is.infinite(volume)) %&gt;%
+  group_by(year) %&gt;%
+  summarize(total_value_sales = sum(volume, na.rm = TRUE))
+
+ggplot(sales_by_year, aes(x = year, y = total_value_sales)) +
+  geom_line(color = &quot;blue&quot;) +
+  geom_point() +
+  xlab(&quot;Years&quot;) +
+  ylab(&quot;Total Number of Sales&quot;) +
+  ggtitle(&quot;Total number of sales in different years&quot;)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code>#Q3
+
+highest_median_price_2015 &lt;- df %&gt;%
+  filter(year == 2015) %&gt;%
+  summarise(max_median_price = max(median, na.rm = TRUE))
+
+house_location &lt;- df %&gt;%
+  filter(year == 2015, median == highest_median_price_2015$max_median_price) %&gt;%
+  select(city)
+
+highest_median_price_2015$max_median_price</code></pre>
+<pre><code>## [1] 304200</code></pre>
+<pre class="r"><code>house_location$city</code></pre>
+<pre><code>## [1] &quot;Collin County&quot;</code></pre>
+<pre class="r"><code>#Q4
+#Finding Austin in dataset
+df_austin &lt;- df %&gt;% 
+  filter(city == &quot;Austin&quot;)
+
+# Setting the linear regression model
+lm_model &lt;- lm(log(sales) ~ listings + year + median, data = df_austin)
+
+# Extracting the p-values and significant predictors
+p_values &lt;- summary(lm_model)$coefficients[, &quot;Pr(&gt;|t|)&quot;]
+significant_predictors &lt;- p_values &lt; 0.05
+significant_predictors</code></pre>
+<pre><code>## (Intercept)    listings        year      median 
+##        TRUE        TRUE        TRUE        TRUE</code></pre>
+<pre class="r"><code>#We can now see that all the predictors are significant!
+
+# Checking the coef of the year to find if there is increase in sales over time
+coefficient_year &lt;- coef(lm_model)[&quot;year&quot;]
+increase_sales_over_time &lt;- coefficient_year &gt; 0
+
+significant_predictors</code></pre>
+<pre><code>## (Intercept)    listings        year      median 
+##        TRUE        TRUE        TRUE        TRUE</code></pre>
+<pre class="r"><code>increase_sales_over_time</code></pre>
+<pre><code>##  year 
+## FALSE</code></pre>
+<p>Therefore we find that there is not an increase in the sales of
+Austin over time. Although we the significant predictors have a
+statistical significance, the predictors do not indicate the
+significance in sales over time.</p>
+<p>The code: nycflights13:flights %&gt;% filter(origin = “LGA”) will not
+work as there is a syntax error in the filter() function and single
+equality symbol is being used instead of a doube equality, lastly the
+piping operator is in the wrong location.Therefore the correct version
+should look as follows:</p>
+<pre class="r"><code>#Q5
+
+
+nycflights13::flights %&gt;%
+  filter(origin == &quot;LGA&quot;)</code></pre>
+<div>
+
+</div>
+<pre class="r"><code>#Q6
+
+data(canada.cities)
+
+canada.cities &lt;- canada.cities[canada.cities$country.etc != &quot;Canada&quot;, ]
+canada.cities$country.etc &lt;- as.factor(canada.cities$country.etc)
+
+# Create the point plot
+plot(canada.cities$long, canada.cities$lat, xlim = c(-140, -50), ylim = c(40, 85), 
+     col = as.numeric(canada.cities$country.etc), pch = 19, cex = sqrt(canada.cities$pop)/5000,
+     xlab = &quot;Longitude&quot;, ylab = &quot;Latitude&quot;, main = &quot;Point Plot of Canada Cities&quot;)</code></pre>
+<p><img src="javascript://" width="672"/></p>
+<pre class="r"><code>#Q7
+library(titanic)
+data(titanic)</code></pre>
+<pre><code>## Warning in data(titanic): data set &#39;titanic&#39; not found</code></pre>
+<pre class="r"><code>data(titanic_train)
+
+model &lt;- glm(Survived ~ Pclass + Sex + Age + Parch, data = titanic_train, family = binomial)
+
+coefficients &lt;- coef(model)
+print(coefficients)</code></pre>
+<pre><code>## (Intercept)      Pclass     Sexmale         Age       Parch 
+##  5.20029961 -1.28704883 -2.58517278 -0.03822797 -0.14716787</code></pre>
+<pre class="r"><code>summary(model)</code></pre>
+<pre><code>## 
+## Call:
+## glm(formula = Survived ~ Pclass + Sex + Age + Parch, family = binomial, 
+##     data = titanic_train)
+## 
+## Coefficients:
+##              Estimate Std. Error z value Pr(&gt;|z|)    
+## (Intercept)  5.200300   0.516675  10.065  &lt; 2e-16 ***
+## Pclass      -1.287049   0.139186  -9.247  &lt; 2e-16 ***
+## Sexmale     -2.585173   0.214296 -12.064  &lt; 2e-16 ***
+## Age         -0.038228   0.007747  -4.934 8.04e-07 ***
+## Parch       -0.147168   0.115579  -1.273    0.203    
+## ---
+## Signif. codes:  0 &#39;***&#39; 0.001 &#39;**&#39; 0.01 &#39;*&#39; 0.05 &#39;.&#39; 0.1 &#39; &#39; 1
+## 
+## (Dispersion parameter for binomial family taken to be 1)
+## 
+##     Null deviance: 964.52  on 713  degrees of freedom
+## Residual deviance: 645.60  on 709  degrees of freedom
+##   (177 observations deleted due to missingness)
+## AIC: 655.6
+## 
+## Number of Fisher Scoring iterations: 5</code></pre>
+
+
+
+
+</div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<script type="module" src="https://s.brightspace.com/lib/bsi/20.23.6-201/unbundled/mathjax.js"></script><script type="text/javascript">document.addEventListener('DOMContentLoaded', function() {
+					if (document.querySelector('math') || /\$\$|\\\(|\\\[|\\begin{|\\ref{|\\eqref{/.test(document.body.innerHTML)) {
+						document.querySelectorAll('mspace[linebreak="newline"]').forEach(elm => {
+							elm.setAttribute('style', 'display: block; height: 0.5rem;');
+						});
+
+						window.D2L.MathJax.loadMathJax({
+							'outputScale': 1.3,
+							'renderLatex': true
+						});
+					}
+				});</script><script type="module" src="https://s.brightspace.com/lib/bsi/20.23.6-201/unbundled/prism.js"></script><script type="text/javascript">document.addEventListener('DOMContentLoaded', function() {
+					document.querySelectorAll('.d2l-code').forEach(code => {
+						window.D2L.Prism.formatCodeElement(code);
+					});
+				});</script></body></html>
